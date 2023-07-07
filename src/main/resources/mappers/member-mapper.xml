@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<mapper namespace="memberMapper">
+	<resultMap type="com.tennis.world.member.vo.MemberVO" id="member">
+		<result column="MEMBER_ID" 			property="memberId"/>
+		<result column="MEMBER_PW" 			property="memberPw"/>
+		<result column="MEMBER_NAME" 		property="memberName"/>
+		<result column="MEMBER_BIRTH" 		property="memberBirth"/>
+		<result column="MEMBER_TELL" 		property="memberTell"/>
+		<result column="IS_ADMIN" 			property="isAdmin"/>
+		<result column="CLUB_CODE" 			property="clubCode"/>
+		<result column="REG_DATE" 			property="regDate"/>
+		<result column="TIER_CODE" 			property="tierCode"/>
+		<result column="MEM_STATE" 			property="memState"/>
+		<result column="BLACK_CNT" 			property="blackCnt"/>
+		<result column="MEM_POINT" 			property="memPoint"/>
+		<result column="MEMBER_CODE" 		property="memberCode"/>
+		<result column="SEARCH_KEY_WORD" 	property="searchKeyWord"/>
+		<result column="SEARCH_VALUE" 		property="searchValue"/>
+		<association property="tierVO" 		resultMap="matchMapper.tier"/>
+	</resultMap>
+	
+	<resultMap type="com.tennis.world.member.vo.AdvanceVO" id="advan">
+		<result column="REQ_CODE" 			property="reqCode"/>
+		<result column="MEMBER_ID" 			property="memberId"/>
+		<result column="MEM_POINT" 			property="memPoint"/>
+		<result column="REQUEST_DATE" 		property="requestDate"/>
+		<result column="BEFOR_TIER_CODE" 	property="beforTierCode"/>
+		<result column="AFTER_TIER_CODE" 	property="afterTierCode"/>
+		<result column="IS_CONFIRMED" 		property="isConfirmed"/>
+		<association property="memberVO" 	resultMap="member"/>
+	</resultMap>
+	
+	<resultMap type="com.tennis.world.member.vo.MemImgVO" id="img">
+		<result column="IMG_CODE" 				property="imgCode"/>
+		<result column="ORIGIN_FILE_NAME" 		property="originFileName"/>
+		<result column="ATTACHED_FILE_NAME" 	property="attachedFileName"/>
+		<result column="MEMBER_ID" 				property="memberId"/>
+	</resultMap>
+	
+	<select id="chkCntId" resultType="int">
+		SELECT COUNT(MEMBER_ID)
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+	<!-- 회원가입 -->
+	<insert id="regMember">
+		INSERT INTO TENNIS_MEMBER (
+			MEMBER_ID
+			, MEMBER_PW
+			, MEMBER_NAME
+			, MEMBER_BIRTH
+			, MEMBER_TELL
+			, MEMBER_CODE
+		) VALUES (
+			#{memberId}
+			, #{memberPw}
+			, #{memberName}
+			, #{memberBirth}
+			, #{memberTell}
+			,(SELECT MAX(MEMBER_CODE) + 1
+				FROM TENNIS_MEMBER)
+		)
+	</insert>
+	
+	<!-- 로그인  -->
+	<select id="login" resultMap="member">
+		SELECT MEMBER_ID
+			, MEMBER_PW
+			, IS_ADMIN
+			, MEM_STATE
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+	
+	<!-- 이름 찾기  -->
+	<select id="getMemName" resultType="String">
+		SELECT MEMBER_NAME
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+	
+	<!-- 티어 코드별 신청  -->
+	<select id="getMemTier" resultType="String">
+		SELECT TIER_CODE
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+	
+	
+	<!-- 내정보 확인-->
+	<select id="getMyInfo" resultMap="member">
+		SELECT MEMBER_ID
+			, MEMBER_NAME
+			, TO_CHAR(MEMBER_BIRTH, 'YYYY-MM-DD') AS MEMBER_BIRTH
+			, MEMBER_TELL
+			, CLUB_CODE
+			, TO_CHAR(REG_DATE, 'YYYY-MM-DD') AS REG_DATE
+			, TIER.TIER_CODE
+			, TIER_NAME
+			, BLACK_CNT
+			, MEM_POINT
+		FROM TENNIS_MEMBER MEM, TENNIS_TIER TIER
+		WHERE MEM.TIER_CODE = TIER.TIER_CODE
+		AND MEMBER_ID = #{memberId}
+	</select>
+	
+	<!-- 승리 데이터 -->
+	<select id="getWinningData" resultType="int">
+		SELECT COUNT(RESULT_CODE)
+		FROM MATCH_RESULT
+		WHERE WINNER_ONE = #{memberId}
+		OR WINNER_TWO = #{memberId}		
+	</select>
+	
+	<!-- 패배 데이터 -->
+	<select id="getLoseData" resultType="int">
+		SELECT COUNT(RESULT_CODE)
+		FROM MATCH_RESULT
+		WHERE LOSER_ONE = #{memberId}
+		OR LOSER_TWO = #{memberId}
+	</select>	
+	
+	<!-- 클럽 이름 조회 -->
+	<select id="getClubNameForMember" resultType="String">
+		SELECT CLUB_NAME
+		FROM TENNIS_CLUB
+		WHERE CLUB_CODE = #{clubCode}
+	</select>
+	
+	<!-- 클럽 회원 리스트 조회 -->
+	<select id="getClubMemberList" resultMap="member">
+		SELECT MEMBER_ID
+			, MEMBER_NAME
+			, MEM.TIER_CODE
+			, TIER_NAME
+			, TO_CHAR(MEMBER_BIRTH, 'YYYY-MM-DD') AS MEMBER_BIRTH
+		FROM TENNIS_MEMBER MEM, TENNIS_TIER TIER
+		WHERE MEM.TIER_CODE = TIER.TIER_CODE
+		AND CLUB_CODE = #{clubCode}
+	</select>
+	
+	<!-- 승급 신청 이력 확인 -->
+	<select id="checkRequest" resultType="int">
+		SELECT COUNT(REQ_CODE)
+		FROM ADVANCEMENT_REQUEST
+		WHERE MEMBER_ID = #{memberId}
+		AND IS_CONFIRMED = 'N'
+	</select>
+	
+	
+	<!-- 승급신청 -->
+	<insert id="requestAdvancement">
+		INSERT INTO ADVANCEMENT_REQUEST (
+			REQ_CODE
+			, MEMBER_ID
+			, MEM_POINT
+			, BEFOR_TIER_CODE
+			, AFTER_TIER_CODE
+		) VALUES (
+			(SELECT 'REQ_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(REQ_CODE, 6))), 0) +1 , 3, '0')
+			FROM ADVANCEMENT_REQUEST)
+			, #{memberId}
+			, #{memPoint}
+			, #{beforTierCode}
+			, #{afterTierCode}
+		)
+	</insert>
+	
+	<!-- 회원의 이미지 정보 확인  -->
+	<select id="countByMemberId" resultMap="img">
+		SELECT IMG_CODE
+			, ATTACHED_FILE_NAME
+		FROM MEMBER_IMG
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+	
+	<!-- 기존 이미지 삭제 -->
+	<delete id="deleteMemImg">
+		DELETE MEMBER_IMG
+		WHERE MEMBER_ID = #{memberId}
+	</delete>
+	
+	<!-- 회원 이미지 등록 -->
+	<insert id="regMemImg">
+		INSERT INTO MEMBER_IMG (
+			IMG_CODE
+			, ORIGIN_FILE_NAME
+			, ATTACHED_FILE_NAME
+			, MEMBER_ID
+		) VALUES (
+			(SELECT 'IMG_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(IMG_CODE, 6))), 0) +1 , 3, '0')
+        	FROM MEMBER_IMG)
+        	, #{originFileName}
+        	, #{attachedFileName}
+        	, #{memberId}  
+		)
+	</insert>
+	<!-- 회원의 이미지 코드 가져가기 -->
+	<select id="getMemImg" resultType="String">
+		SELECT ATTACHED_FILE_NAME
+		FROM MEMBER_IMG
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+		
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

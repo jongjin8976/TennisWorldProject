@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<mapper namespace="clubMapper">
+	<resultMap type="com.tennis.world.club.vo.ClubVO" id="club">
+		<result column="CLUB_CODE" 			property="clubCode"/>
+		<result column="CLUB_NAME" 			property="clubName"/>
+		<result column="CLUB_INTRO" 		property="clubIntro"/>
+		<result column="CLUB_TIER" 			property="clubTier"/>
+		<result column="CLUB_PERSONNEL" 	property="clubPersonnel"/>
+		<result column="CLUB_LEADER" 		property="clubLeader"/>
+		<result column="CLUB_HEAD_COUNT"	property="clubHeadCount"/>
+		<association property="memberVO" 	resultMap="memberMapper.member"/>
+		<association property="tierVO" 		resultMap="matchMapper.tier"/>
+	</resultMap>
+	
+	<!-- 클럽명 중목 체크  -->
+	<select id="checkByClubName" resultType="int">
+		SELECT COUNT(CLUB_CODE)
+		FROM TENNIS_CLUB
+		WHERE CLUB_NAME = #{clubName}
+	</select>
+	
+	<!-- 클럽생성 가능여부 확인  -->
+	<select id="checkCountClubCode" resultType="int">
+		SELECT COUNT(CLUB_CODE)
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+	
+	<!-- 다음에 들어갈 클럽코드 조회  -->
+	<select id="getNextClubCode" resultType="String">
+		SELECT 'CLUB_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(CLUB_CODE, 7))), 0) +1 , 3, '0')
+        FROM TENNIS_CLUB
+	</select>
+	<!-- 클럽등록 -->
+	<insert id="createClub">
+		INSERT INTO TENNIS_CLUB (
+			CLUB_CODE
+			, CLUB_NAME
+			, CLUB_INTRO
+			, CLUB_TIER
+			, CLUB_PERSONNEL
+			, CLUB_LEADER
+		) VALUES (
+			#{clubCode}
+            , #{clubName}
+            , #{clubIntro}
+            , 'TIER_001'
+            , #{clubPersonnel}
+            , #{clubLeader}
+		)
+	</insert>
+	<!-- 클럽장 업데이트 -->
+	<update id="setMemberByClubData">
+		UPDATE TENNIS_MEMBER
+		SET CLUB_CODE = #{clubCode}
+		WHERE MEMBER_ID = #{clubLeader}
+	</update>
+	<!-- 클럽 상세정보 -->
+	<select id="getClubList" resultMap="club">
+		SELECT CLUB.CLUB_CODE
+			, CLUB_NAME
+			, CLUB.CLUB_TIER
+			, CLUB_LEADER
+			, MEMBER_NAME
+			, CLUB_PERSONNEL
+            , CLUB_HEAD_COUNT
+			, TIER.TIER_NAME
+			, CLUB_INTRO
+		FROM TENNIS_CLUB CLUB, TENNIS_MEMBER MEM, TENNIS_TIER TIER
+		WHERE CLUB.CLUB_LEADER = MEM.MEMBER_ID
+		AND CLUB.CLUB_TIER = TIER.TIER_CODE
+		<if test='clubCode != null and !clubCode.equals("")'>
+		AND CLUB.CLUB_CODE = #{clubCode}
+		</if>
+	</select>
+	
+	<!-- 클럽회원조회 -->
+	<select id="getClubMemberList" resultMap="memberMapper.member">
+		SELECT MEMBER_ID 
+		        , MEMBER_NAME
+		        , TIER_NAME
+		FROM TENNIS_MEMBER MEM, TENNIS_TIER TIER
+		WHERE MEM.TIER_CODE = TIER.TIER_CODE 
+		AND CLUB_CODE = #{clubCode}
+	</select>
+	
+	
+	<!-- 클럽 가입 중복회원 조회 -->
+	<select id="joinByDuplication" resultType="int">
+		SELECT COUNT(MEMBER_ID)
+		FROM TENNIS_MEMBER
+		WHERE CLUB_CODE IS NULL
+		AND MEMBER_ID = #{memberId}
+	</select>
+	
+	<!-- 클럽 가입 -->
+	<update id="joinClub">
+		UPDATE TENNIS_MEMBER
+		SET CLUB_CODE = #{clubCode}
+		WHERE MEMBER_ID = #{memberId}
+	</update>
+	
+	<!-- 클럽 회원 업데이트 -->
+	<update id="setClubHeadCount">
+		UPDATE TENNIS_CLUB
+		SET CLUB_HEAD_COUNT = CLUB_HEAD_COUNT + 1
+		WHERE CLUB_CODE = #{clubCode}
+	</update>
+	
+	<!-- 클럽 회원 삭제 -->
+	<update id="dropOutClubByMember">
+		UPDATE TENNIS_MEMBER
+		SET CLUB_CODE = NULL
+		WHERE MEMBER_ID = #{memberId}
+	</update>
+	
+	<!-- 클럽 인원수 조정 -->
+	<update id="dropOutBySetHeadCount">
+		UPDATE TENNIS_CLUB
+		SET CLUB_HEAD_COUNT = CLUB_HEAD_COUNT -1
+		WHERE CLUB_CODE = #{clubCode}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

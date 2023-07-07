@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<mapper namespace="leagueMapper">
+	<resultMap type="com.tennis.world.league.vo.LeagueVO" id="league">
+		<result column="LEAGUE_CODE" 				property="leagueCode"/>
+		<result column="LEAGUE_NAME" 				property="leagueName"/>
+		<result column="LEAGUE_FIRST_REWORD" 		property="leagueFirstReword"/>
+		<result column="LEAGUE_SECOND_REWORD" 		property="leagueSecondReword"/>
+		<result column="LEAGUE_THIRD_REWORD" 		property="leagueThirdReword"/>
+		<result column="LEAGUE_DATE" 				property="leagueDate"/>
+		<result column="FIRST_PLACE" 				property="firstPlace"/>
+		<result column="SECOND_PLACE" 				property="secondPlace"/>
+		<result column="THIRD_PLACE" 				property="thirdPlace"/>
+		<result column="LEAGUE_LOCATION" 			property="leagueLocation"/>
+	</resultMap>
+	
+	<select id="getRankList" resultMap="memberMapper.member">
+		SELECT MEMBER_ID
+		        , MEMBER_NAME
+		        , MEM_POINT
+		        , TIER.TIER_CODE
+		        , TIER_NAME
+		FROM TENNIS_MEMBER MEM, TENNIS_TIER TIER
+		WHERE MEM.TIER_CODE = TIER.TIER_CODE
+		AND MEM.TIER_CODE = #{tierCode}
+		AND MEM_STATE = 'Y'
+		ORDER BY MEM_POINT DESC
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

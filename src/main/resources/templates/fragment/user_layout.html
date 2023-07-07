@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- bootstrap css파일 로딩  -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+<!--admin_layout과 열리는 모든 페이지에 공통적용되는 css -->
+<link rel="stylesheet" href="/css/common.css">
+<!--content 페이지가 열릴 때 같이 열리는 css  -->
+<th:block layout:fragment="content_css"></th:block>
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="col-12">
+			<th:block th:replace="~{fragment/header::headerFragment}"></th:block>
+		</div>	
+	</div>	
+	<div class="row">
+		<div class="col-12">
+			<th:block layout:fragment="content"></th:block>
+		</div>
+	</div>		
+</div>
+<!-- jquery 문법 링크 로딩 -->
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<!--부트스트랩 js 로딩 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+<!-- header.js 파일 -->
+<script type="text/javascript" src="/js/fragment/header.js"></script>
+<!-- swal2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<!-- 카카오 주소록 api  -->
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<!--content 페이지가 열릴 때 같이 열리는 js  -->
+<th:block layout:fragment="content_js"></th:block>
+</body>
+</html>

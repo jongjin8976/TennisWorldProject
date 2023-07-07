@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{fragment/user_layout}"
+   >
+
+<!-- 연결해야 할 외부 css 파일  -->
+<th:block layout:fragment="content_css">
+	<link rel="stylesheet" href="">
+</th:block>	
+
+<th:block layout:fragment="content">
+		<div class="row">
+		<div class="col">
+			<form action="/match/insertMatch" id="matchForm" method="post">
+				<div class="row mt-3 mb-3">
+					<div class="col-12 text-center">
+						<h3>클럽 생성하기</h3>
+					</div>
+				</div>
+				<div class="row mb-3 justify-content-center">
+					<div class="col-1">
+						클럽명 :
+					</div>
+					<div class="col-3">
+						<input type="text" id="clubName" name="clubName" class="form-control">
+					</div>
+					<div class="col-2">
+						<input type="button" value="클럽명 중복검사" onclick="checkClubName();" class="btn btn-primary">
+					</div>
+				</div>
+				<div class="row mb-3 justify-content-center">
+					<div class="col-4 text-start">
+						<span style="color: red; font-size: 10px;">
+						※ 클럽명은 5~8자리 한글 영문자만 가능합니다.
+						</span>
+					</div>
+				</div>
+				<div class="row mb-3 justify-content-center">
+					<div class="col-1">
+						클럽 정원
+					</div>
+					<div class="col-5">
+						<input type="number" id="clubPersonnel" min="10" max="30" name="clubPersonnel" class="form-control">
+					</div>
+				</div>
+				<div class="row mb-3 justify-content-center">
+					<div class="col-1">
+						클럽 소개글 :
+					</div>
+					<div class="col-5"></div>
+				</div>
+				<div class="row mb-3 justify-content-center">
+					<div class="col-6">
+						<textarea rows="5" cols="105" name="clubIntro" id="clubIntro" class="form-control">
+						
+						</textarea>
+					</div>
+				</div>
+				<div class="row mb-3 justify-content-center">
+					<div class="col-6 d-grid">
+						<input type="button" value="등록하기" disabled id="createBtn" onclick="createClub();" class="btn btn-primary">
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</th:block>
+
+<!-- 연결해야 할 외부 js 파일 -->
+<th:block layout:fragment="content_js">
+	<script type="text/javascript" src="/js/content/club/create_club_form.js"></script>
+</th:block>	
+
+</html>

@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<mapper namespace="adminMapper">
+	<resultMap type="com.tennis.world.admin.vo.MatchResultVO" id="result">
+		<result column="RESULT_CODE" 			property="resultCode"/>
+		<result column="MATCH_CODE" 			property="matchCode"/>
+		<result column="WINNER_ONE" 			property="winnerOne"/>
+		<result column="WINNER_TWO" 			property="winnerTwo"/>
+		<result column="LOSER_ONE" 				property="loserOne"/>
+		<result column="LOSER_TWO" 				property="loserTwo"/>
+		<result column="WINNER_SCORE" 			property="winnerScore"/>
+		<result column="LOSER_SCORE" 			property="loserScore"/>
+		<result column="FIRST_SET_SCORE_P1" 	property="firstSetScoreP1"/>
+		<result column="FIRST_SET_SCORE_P2" 	property="firstSetScoreP2"/>
+		<result column="SECOND_SET_SCORE_P1" 	property="secondSetScoreP1"/>
+		<result column="SECOND_SET_SCORE_P2" 	property="secondSetScoreP2"/>
+		<result column="THIRD_SET_SCORE_P1" 	property="thirdSetScoreP1"/>
+		<result column="THIRD_SET_SCORE_P2" 	property="thirdSetScoreP2"/>
+		<result column="FOURTH_SET_SCORE_P1" 	property="fourthSetScoreP1"/>
+		<result column="FOURTH_SET_SCORE_P2" 	property="fourthSetScoreP2"/>
+		<result column="FIFTH_SET_SCORE_P1" 	property="fifthSetScoreP1"/>
+		<result column="FIFTH_SET_SCORE_P2" 	property="fifthSetScoreP2"/>
+		<association property="matchVO" 		resultMap="matchMapper.match"/>
+	</resultMap>
+	
+	<resultMap type="com.tennis.world.admin.vo.BlackListVO" id="black">
+		<result column="BLACK_CODE" 			property="blackCode"/>
+		<result column="MEMBER_ID" 			property="memberId"/>
+		<result column="BLACK_COMMENT" 		property="blackComment"/>
+		<result column="BLACK_DATE" 			property="blackDate"/>
+	</resultMap>
+	
+	<!-- 날짜별 조회  -->
+	<select id="getDateByMatchResult" resultMap="matchMapper.match">
+		SELECT MATCH_CODE
+		        , PLA.PLACE_NO
+		        , MEM.MEMBER_ID
+		        , MATCH_WRITER
+		        , MEMBER_NAME
+		        , PLACE_NAME
+		        , COU.COURT_NO
+		        , COURT_NAME
+		        , MAT.MATCH_TYPE
+		        , TYPE_NAME
+		        , MAT.MATCH_TIER
+		        , TIER_NAME
+		        , TO_CHAR(MAT.REG_DATE, 'YYYY-MM-DD') AS REG_DATE
+		        , MATCH_DATE
+		        , START_TIME
+		        , END_TIME
+		        , MATCH_INTRO
+		        , IS_DEADLINE
+		FROM TENNIS_MATCH MAT, TENNIS_PLACE PLA, TENNIS_COURT COU, MATCH_TYPE TYP, TENNIS_TIER TIER, TENNIS_MEMBER MEM
+		WHERE MAT.PLACE_NO = PLA.PLACE_NO
+		AND MAT.COURT_NO = COU.COURT_NO
+		AND MAT.MATCH_WRITER = MEM.MEMBER_ID
+		AND MAT.MATCH_TYPE = TYP.MATCH_TYPE_NO
+		AND MAT.MATCH_TIER = TIER.TIER_CODE
+		<if test='fromDate != null and !fromDate.equals("")'>
+		AND TO_CHAR(MAT.REG_DATE, 'YYYY-MM-DD') &gt;= #{fromDate}
+		</if>
+		<if test='toDate != null and !toDate.equals("")'>
+		AND TO_CHAR(MAT.REG_DATE, 'YYYY-MM-DD') &lt;= #{toDate}
+		</if>
+		AND IS_DEADLINE = 'Y'
+		AND IS_CONFIRMED = 'N'
+		ORDER BY MATCH_CODE
+	</select>
+	
+	<!-- 경기결과 등록  -->
+	<insert id="regMatchResult">
+		INSERT INTO MATCH_RESULT (
+			RESULT_CODE
+			, MATCH_CODE
+			, WINNER_ONE
+			<if test='winnerTwo != null and !winnerTwo.equals("")'>
+			, WINNER_TWO
+			</if>
+			, LOSER_ONE
+			<if test='loserTwo != null and !loserTwo.equals("")'>
+			, LOSER_TWO
+			</if>
+			, WINNER_SCORE
+			, LOSER_SCORE
+			, FIRST_SET_SCORE_P1
+			, FIRST_SET_SCORE_P2
+			, SECOND_SET_SCORE_P1
+			, SECOND_SET_SCORE_P2
+			, THIRD_SET_SCORE_P1
+			, THIRD_SET_SCORE_P2
+			, FOURTH_SET_SCORE_P1
+			, FOURTH_SET_SCORE_P2
+			, FIFTH_SET_SCORE_P1
+			, FIFTH_SET_SCORE_P2
+		) VALUES (
+			(SELECT 'RESULT_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(RESULT_CODE, 9))), 0) +1 , 3, '0')
+            FROM MATCH_RESULT)
+            , #{matchCode}
+            , #{winnerOne}
+            <if test='winnerTwo != null and !winnerTwo.equals("")'>
+            , #{winnerTwo}
+            </if>
+            , #{loserOne}
+            <if test='loserTwo != null and !loserTwo.equals("")'>
+            , #{loserTwo}
+            </if>
+            , #{winnerScore}
+            , #{loserScore}
+            , #{firstSetScoreP1}
+            , #{firstSetScoreP2}
+            , #{secondSetScoreP1}
+            , #{secondSetScoreP2}
+            , #{thirdSetScoreP1}
+            , #{thirdSetScoreP2}
+            , #{fourthSetScoreP1}
+            , #{fourthSetScoreP2}
+            , #{fifthSetScoreP1}
+            , #{fifthSetScoreP2}
+		)
+	</insert>
+	
+	<!-- 경기 종료 확인 -->
+	<update id="setMatchConfirmed">
+		UPDATE TENNIS_MATCH
+		SET IS_CONFIRMED = 'Y'
+		WHERE MATCH_CODE = #{matchCode}
+	</update>
+	
+	<!-- 점수 등록 -->
+	<update id="setWinnerScore">
+		UPDATE TENNIS_MEMBER
+		SET MEM_POINT = MEM_POINT +25 
+		WHERE 1 = 1
+		<if test='winnerTwo == null or winnerTwo.equals("")'>		
+		AND MEMBER_ID = #{winnerOne}
+		</if>
+		<if test='winnerTwo != null and !winnerTwo.equals("")'>
+		AND MEMBER_ID IN (#{winnerOne}, #{winnerTwo})
+		</if>
+	</update>
+	
+	<update id="setLoserScore">
+		UPDATE TENNIS_MEMBER
+		SET MEM_POINT = CASE
+		    WHEN (MEM_POINT - 10) &lt; 0 THEN 0
+		    ELSE MEM_POINT - 10
+		    END
+		WHERE 1 = 1
+		<if test='loserTwo == null or loserTwo.equals("")'>
+		AND MEMBER_ID = #{loserOne}
+		</if>
+		<if test='loserTwo != null and !loserTwo.equals("")'>
+		AND MEMBER_ID IN(#{loserOne} ,#{loserTwo})
+		</if>
+	</update>
+	
+	<!-- 승급 요청 리스트 조회 -->
+	<select id="getAdvanList" resultMap="memberMapper.advan">
+		SELECT REQ_CODE
+			, AD.MEMBER_ID
+			, MEMBER_NAME
+			, AD.MEM_POINT
+			, TO_CHAR(REQUEST_DATE, 'YYYY-MM-DD') AS REQUEST_DATE
+			, AD.BEFOR_TIER_CODE
+			, AD.AFTER_TIER_CODE
+			, TIER_NAME
+			, IS_CONFIRMED
+		FROM ADVANCEMENT_REQUEST AD, TENNIS_MEMBER MEM, TENNIS_TIER TIER
+		WHERE AD.MEMBER_ID = MEM.MEMBER_ID
+		AND AD.BEFOR_TIER_CODE = TIER.TIER_CODE
+		ORDER BY REQUEST_DATE
+	</select>
+	
+	<!-- 승급 요청 데이터 조회 -->
+	<select id="getAdvanDetail" resultMap="memberMapper.advan">
+		SELECT REQ_CODE 
+			, MEMBER_ID
+			, AFTER_TIER_CODE
+		FROM ADVANCEMENT_REQUEST
+		WHERE REQ_CODE = #{reqCode}
+	</select>
+	
+	<!-- 회원 승급처리 -->
+	<update id="setMemTier">
+		UPDATE TENNIS_MEMBER
+		SET TIER_CODE = #{afterTierCode}
+			, MEM_POINT = MEM_POINT - 100
+		WHERE MEMBER_ID = #{memberId}
+	</update>
+	
+	<!-- 승급결과 업데이트 -->
+	<update id="setConrimedAdvan">
+		UPDATE ADVANCEMENT_REQUEST
+		SET IS_CONFIRMED = 'Y'
+		WHERE REQ_CODE = #{reqCode}
+	</update>
+	
+	<!-- 블랙리스트 페이지 -->
+	<select id="getBlackList" resultMap="memberMapper.member">
+		SELECT MEMBER_CODE 
+			, MEMBER_ID
+			, MEMBER_NAME
+			, BLACK_CNT
+		FROM TENNIS_MEMBER
+		WHERE 1 = 1
+		<if test='searchKeyWord != null and !searchKeyWord.equals("")'>
+		AND ${searchKeyWord} LIKE '%'||#{searchValue}||'%' 
+		</if>
+		AND IS_ADMIN = 'N'
+	</select>
+	
+	<!-- 회원 블랙포인트 확인 -->
+	<select id="getMemberBlackCnt" resultType="int">
+		SELECT BLACK_CNT
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+	
+	<!-- 블랙리스트 등록 -->
+	<insert id="regBlackList">
+		INSERT INTO BLACK_LIST (
+			BLACK_CODE
+			, MEMBER_ID
+			, BLACK_COMMENT
+			, BLACK_DATE
+		) VALUES (
+			(SELECT 'BLACK_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(BLACK_CODE, 8))), 0) +1 , 3, '0')
+            FROM BLACK_LIST)
+            , #{memberId}
+            , #{blackComment}
+            , SYSDATE
+		)
+	</insert>
+	
+	<!-- 회원 데이터 업데이트  -->
+	<update id="setMemberByBlackCnt">
+		UPDATE TENNIS_MEMBER
+		SET BLACK_CNT = BLACK_CNT + 1
+		WHERE MEMBER_ID = #{memberId}
+	</update>
+	
+	<!-- 회원 제명 -->
+	<update id="expulsionByMember">
+		UPDATE TENNIS_MEMBER
+		SET MEM_STATE = 'N'
+		WHERE MEMBER_ID = #{memberId}
+	</update>
+	
+	<!-- 회원의 경고 누적 사유 -->
+	<select id="getMemberByBlackReason" resultMap="black">
+		SELECT BLACK_CODE
+			, BLACK_COMMENT
+			, TO_CHAR(BLACK_DATE, 'YYYY-MM-DD') AS BLACK_DATE
+		FROM BLACK_LIST
+		WHERE MEMBER_ID = #{memberId} 
+	</select>
+	
+	<!-- 누적 사유 삭제 -->
+	<delete id="deleteBlackCode">
+		DELETE BLACK_LIST
+		WHERE BLACK_CODE = #{blackCode}
+	</delete>
+	
+	<!-- 제명 복구 -->
+	<update id="setMemStateByBlack">
+		UPDATE TENNIS_MEMBER
+		SET MEM_STATE = 'Y'
+		WHERE MEMBER_ID = #{memberId}
+	</update>
+	
+	<!-- 회원 블랙포인트 차감 -->
+	<update id="subtractBlackCnt">
+		UPDATE TENNIS_MEMBER
+		SET BLACK_CNT = BLACK_CNT -1
+		WHERE MEMBER_ID = #{memberId}
+	</update>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

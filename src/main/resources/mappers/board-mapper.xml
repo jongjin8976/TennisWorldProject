@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<mapper namespace="boardMapper">
+	<resultMap type="com.tennis.world.board.vo.BoardVO" id="board">
+		<result column="BOARD_NO" 			property="boardNo"/>
+		<result column="BOARD_TITLE" 		property="boardTitle"/>
+		<result column="BOARD_WRITER" 		property="boardWriter"/>
+		<result column="BOARD_CONTENT" 		property="boardContent"/>
+		<result column="READ_CNT" 			property="readCnt"/>
+		<result column="IS_NOTICE" 			property="isNotice"/>
+		<result column="REG_DATE" 			property="regDate"/>
+	</resultMap>
+	
+	<resultMap type="com.tennis.world.board.vo.ReplyVO" id="reply">
+		<result column="REPLY_NO" 			property="replyNo"/>
+		<result column="REPLY_WRITER" 		property="replyWriter"/>
+		<result column="REPLY_CONTENT" 		property="replyContent"/>
+		<result column="REG_DATE" 			property="regDate"/>
+		<result column="BOARD_NO" 			property="boardNo"/>
+	</resultMap>
+	
+	<!-- 게시글 목록 -->
+	<select id="getBoardList" resultMap="board">
+		SELECT BOARD_NO
+			, BOARD_TITLE
+			, BOARD_WRITER
+			, READ_CNT
+			, TO_CHAR(REG_DATE, 'YYYY-MM-DD') AS REG_DATE
+		FROM TENNIS_BOARD
+		WHERE IS_NOTICE = #{isNotice}
+	</select>
+	
+	<!-- 글등록 -->
+	<insert id="regBoard">
+		INSERT INTO TENNIS_BOARD (
+			BOARD_NO
+			, BOARD_TITLE
+			, BOARD_WRITER
+			, BOARD_CONTENT
+			, REG_DATE
+		) VALUES (
+			(SELECT 'BOARD_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(BOARD_NO, 7))), 0) +1 , 3, '0')
+			FROM TENNIS_BOARD)
+			, #{boardTitle}
+			, #{boardWriter}
+			, #{boardContent}
+			, SYSDATE
+		)
+	</insert>
+	
+	<!-- 조회수 업데이트  -->
+	<update id="setReadCnt">
+		UPDATE TENNIS_BOARD
+		SET READ_CNT = READ_CNT + 1
+		WHERE BOARD_NO = #{boardNo}
+	</update>
+	
+	<!-- 게시글 상세정보 -->
+	<select id="getBoardDetail" resultMap="board">
+		SELECT BOARD_NO
+			, BOARD_TITLE
+			, BOARD_WRITER
+			, BOARD_CONTENT
+			, READ_CNT
+			, TO_CHAR(REG_DATE,'YYYY-MM-DD') AS REG_DATE
+		FROM TENNIS_BOARD
+		WHERE BOARD_NO = #{boardNo}
+	</select>
+	
+	<!-- 댓글 정보 -->
+	<select id="getReplyListByBoard" resultMap="reply">
+		SELECT REPLY_NO
+			, REPLY_WRITER
+			, REPLY_CONTENT
+			, TO_CHAR(REG_DATE, 'YYYY-MM-DD') AS REG_DATE
+			, BOARD_NO
+		FROM BOARD_REPLY
+		WHERE BOARD_NO = #{boardNo}
+	</select>
+	
+	<!-- 댓글 등록 -->
+	<insert id="regReply">
+		INSERT INTO BOARD_REPLY (
+			REPLY_NO
+			, REPLY_WRITER
+			, REPLY_CONTENT
+			, REG_DATE
+			, BOARD_NO
+		) VALUES (
+			(SELECT 'REPLY_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(REPLY_NO, 7))), 0) +1 , 3, '0')
+			FROM BOARD_REPLY)
+			, #{replyWriter}
+			, #{replyContent}
+			, SYSDATE
+			, #{boardNo}
+		)
+	</insert>
+	
+	<!-- 댓글 수정 -->
+	<update id="updateReply">
+		UPDATE BOARD_REPLY
+		SET REPLY_CONTENT = #{replyContent}
+		WHERE REPLY_NO = #{replyNo}
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<delete id="deleteReply">
+		DELETE BOARD_REPLY
+		WHERE REPLY_NO = #{replyNo}
+	</delete>
+	
+	<!-- 게시글 수정 -->
+	<update id="updateBoard">
+		UPDATE TENNIS_BOARD
+		SET BOARD_TITLE = #{boardTitle}
+			, BOARD_CONTENT = #{boardContent}
+		WHERE BOARD_NO = #{boardNo}
+	</update>
+	
+	<!-- 게시글 삭제 -->
+	<delete id="delBoard">
+		DELETE TENNIS_BOARD
+		WHERE BOARD_NO = #{boardNo}
+	</delete>
+	
+	
+	<!-- 글등록 -->
+	<insert id="regNoticeBoard">
+		INSERT INTO TENNIS_BOARD (
+			BOARD_NO
+			, BOARD_TITLE
+			, BOARD_WRITER
+			, BOARD_CONTENT
+			, REG_DATE
+			, IS_NOTICE
+		) VALUES (
+			(SELECT 'BOARD_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(BOARD_NO, 7))), 0) +1 , 3, '0')
+			FROM TENNIS_BOARD)
+			, #{boardTitle}
+			, #{boardWriter}
+			, #{boardContent}
+			, SYSDATE
+			, #{isNotice}
+		)
+	</insert>
+	
+	
+	
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

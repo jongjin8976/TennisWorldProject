@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<mapper namespace="matchMapper">
+	<resultMap type="com.tennis.world.match.vo.TierVO" id="tier">
+		<result column="TIER_CODE" 		property="tierCode"/>
+		<result column="TIER_NAME" 		property="tierName"/>
+	</resultMap>
+	
+	<resultMap type="com.tennis.world.match.vo.TypeVO" id="type">
+		<result column="MATCH_TYPE_NO" 	property="matchTypeNo"/>
+		<result column="TYPE_NAME" 		property="typeName"/>
+	</resultMap>
+	
+	<resultMap type="com.tennis.world.match.vo.PlaceVO" id="place">
+		<result column="PLACE_NO"		property="placeNo"/>
+		<result column="PLACE_NAME"		property="placeName"/>
+		<result column="PLACE_TYPE"		property="placeType"/>
+		<result column="COURT_CNT"		property="courtCnt"/>
+	</resultMap>
+	
+	<resultMap type="com.tennis.world.match.vo.CourtVO" id="court">
+		<result column="COURT_NO"		property="courtNo"/>
+		<result column="COURT_NAME"		property="courtName"/>
+		<result column="PLACE_NO"		property="placeNo"/>		
+	</resultMap>
+	
+	<resultMap type="com.tennis.world.match.vo.MatchVO" id="match">
+		<result column="MATCH_CODE" 			property="matchCode"/>
+		<result column="MATCH_WRITER" 			property="matchWriter"/>
+		<result column="MATCH_TYPE" 			property="matchType"/>
+		<result column="MATCH_INTRO" 			property="matchIntro"/>
+		<result column="REG_DATE" 				property="regDate"/>
+		<result column="MATCH_DATE" 			property="matchDate"/>
+		<result column="START_TIME" 			property="startTime"/>
+		<result column="END_TIME" 				property="endTime"/>
+		<result column="MATCH_TIER" 			property="matchTier"/>
+		<result column="PLACE_NO" 				property="placeNo"/>
+		<result column="COURT_NO" 				property="courtNo"/>
+		<result column="PLAYER_1" 				property="player1"/>
+		<result column="PLAYER_2" 				property="player2"/>
+		<result column="PLAYER_3" 				property="player3"/>
+		<result column="PLAYER_4" 				property="player4"/>
+		<result column="IS_DEADLINE"			property="isDeadLine"/>
+		<result column="TO_DATE" 				property="toDate"/>
+		<result column="FROM_DATE" 				property="fromDate"/>
+		<result column="IS_CONFIRMED"			property="isConfirmed"/>
+		<result column="PLAYER_CODE"			property="playerCode"/>
+		<association property="memberVO" 		resultMap="memberMapper.member"/>
+		<association property="typeVO" 			resultMap="type"/>
+		<association property="tierVO" 			resultMap="tier"/>
+		<association property="placeVO" 		resultMap="place"/>
+		<association property="courtVO"			resultMap="court"/>
+	</resultMap>
+	<!-- 티어리스트  -->
+	<select id="getTierList" resultMap="tier">
+		SELECT TIER_CODE
+			, TIER_NAME
+		FROM TENNIS_TIER
+	</select>
+	<!-- 매칭 타입 리스트  -->
+	<select id="getTypeList" resultMap="type">
+		SELECT MATCH_TYPE_NO
+			, TYPE_NAME
+		FROM MATCH_TYPE
+	</select>
+	<!-- 중복검사 -->
+	<select id="getPlaceList" resultMap="place">
+		SELECT PLACE_NO
+			, PLACE_NAME
+			, PLACE_TYPE
+			, COURT_CNT
+		FROM TENNIS_PLACE
+	</select>
+	<!-- 코트리스트 -->
+	<select id="getCourtList" resultMap="court">
+		SELECT COURT_NO
+			, COURT_NAME
+			, PLACE_NO
+		FROM TENNIS_COURT
+		<if test='placeNo != null and !placeNo.equals("")'>
+		WHERE PLACE_NO = #{placeNo}
+		</if>
+	</select>
+	<!-- 매칭등록 중복검사 -->
+	<select id="checkMatchByCondition" resultType="int">
+		SELECT COUNT(MATCH_CODE)
+		FROM TENNIS_MATCH
+		WHERE MATCH_DATE = #{matchDate}
+		AND START_TIME = #{startTime}
+		AND END_TIME = #{endTime}
+		AND PLACE_NO = #{placeNo}
+		AND COURT_NO = #{courtNo}
+	</select>
+	
+	<!-- 매칭 등록  -->
+	<insert id="regMatch">
+		INSERT INTO TENNIS_MATCH (
+			MATCH_CODE
+			, MATCH_WRITER
+			, MATCH_TYPE
+			, MATCH_INTRO
+			, MATCH_DATE
+			, START_TIME
+			, END_TIME
+			, MATCH_TIER
+			, PLACE_NO
+			, COURT_NO
+			, PLAYER_1
+			<if test='player2 != null and !player2.equals("")'>
+			, PLAYER_2
+			</if>
+			<if test='isDeadLine != null and !isDeadLine.equals("")'>
+			, IS_DEADLINE
+			</if>
+		) VALUES (
+			(SELECT 'MATCH_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(MATCH_CODE, 8))), 0) +1 , 3, '0')
+            FROM TENNIS_MATCH)
+			, #{matchWriter}
+			, #{matchType}
+			, #{matchIntro}
+			, #{matchDate}
+			, #{startTime}
+			, #{endTime}
+			, #{matchTier}
+			, #{placeNo}
+			, #{courtNo}
+			, #{player1}
+			<if test='player2 != null and !player2.equals("")'>
+			, #{player2}
+			</if>
+			<if test='isDeadLine != null and !isDeadLine.equals("")'>
+			, #{isDeadLine}
+			</if>
+		)
+	</insert>
+	<!-- 매치리스트 조회 -->
+	<select id="getMatchList" resultMap="match">
+		SELECT MATCH_CODE
+		        , PLA.PLACE_NO
+		        , PLACE_NAME
+		        , COU.COURT_NO
+		        , COURT_NAME
+		        , MAT.MATCH_TYPE
+		        , TYPE_NAME
+		        , MAT.MATCH_TIER
+		        , TIER_NAME
+		        , MATCH_DATE
+		        , START_TIME
+		        , END_TIME
+		        , MATCH_INTRO
+		        , IS_DEADLINE
+		FROM TENNIS_MATCH MAT, TENNIS_PLACE PLA, TENNIS_COURT COU, MATCH_TYPE TYP, TENNIS_TIER TIER
+		WHERE MAT.PLACE_NO = PLA.PLACE_NO
+		AND MAT.COURT_NO = COU.COURT_NO
+		AND MAT.MATCH_TYPE = TYP.MATCH_TYPE_NO
+		AND MAT.MATCH_TIER = TIER.TIER_CODE
+		AND IS_CONFIRMED = 'N'
+		ORDER BY MATCH_DATE DESC
+	</select>
+	<!-- 매치 디테일 -->
+	<select id="getMatchInfo" resultMap="match">
+		SELECT  MATCH_CODE
+			, MATCH_WRITER
+	        , PLA.PLACE_NO
+	        , PLACE_NAME
+	        , COU.COURT_NO
+	        , COURT_NAME
+	        , MAT.MATCH_TYPE
+	        , TYPE_NAME
+	        , MAT.MATCH_TIER
+	        , TIER_NAME
+	        , MATCH_DATE
+	        , START_TIME
+	        , END_TIME
+	        , MATCH_INTRO
+	        , IS_DEADLINE
+			, PLAYER_1
+			, PLAYER_2
+			, PLAYER_3
+			, PLAYER_4
+		FROM TENNIS_MATCH MAT, TENNIS_PLACE PLA, TENNIS_COURT COU, MATCH_TYPE TYP, TENNIS_TIER TIER
+		WHERE MAT.PLACE_NO = PLA.PLACE_NO
+		AND MAT.COURT_NO = COU.COURT_NO
+		AND MAT.MATCH_TYPE = TYP.MATCH_TYPE_NO
+		AND MAT.MATCH_TIER = TIER.TIER_CODE
+		AND MATCH_CODE = #{matchCode}
+	</select>
+	
+	<!-- 참가자 이름 리스트 -->
+	<select id="getNameList" resultType="String">
+		SELECT MEMBER_NAME
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_ID IN
+		<foreach collection="memIdList" item="memId" open="(" close=")" separator=",">
+			#{memId}
+		</foreach>
+		ORDER BY CASE MEMBER_ID
+		<foreach collection="memIdList" item="memId" index="i">
+			WHEN #{memId} THEN ${i + 1}
+		</foreach>
+		END
+	</select>
+	
+	<!-- 참가자 티어 리스트  -->
+	<select id="getTierCodeList" resultType="String">
+		SELECT TIER_CODE
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_ID IN
+		<foreach collection="memIdList" item="memId" open="(" close=")" separator=",">
+			#{memId}
+		</foreach>
+		ORDER BY CASE MEMBER_ID
+		<foreach collection="memIdList" item="memId" index="i">
+			WHEN #{memId} THEN ${i + 1}
+		</foreach>
+		END
+	</select>
+
+	
+	<!-- 참가자 티어 이름 리스트  -->
+	<select id="getTierNameList" resultType="String">
+		<foreach collection="tierList" item="tierName" separator="UNION ALL">
+			SELECT TIER_NAME
+			FROM TENNIS_TIER
+			WHERE TIER_CODE = #{tierName}
+		</foreach>
+	</select>
+	
+	<!-- 티어 검증1 -->
+	<select id="valifyTier" resultType="String">
+		SELECT TIER_CODE
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+	
+	<!-- 티어 검증 2 -->
+	<select id="valifyMatch" resultType="String">
+		SELECT MATCH_TIER
+		FROM TENNIS_MATCH
+		WHERE MATCH_CODE = #{matchCode}
+	</select>
+	
+	<!-- 단식 검증 -->
+	<select id="valifyPlayer" resultType="int">
+		SELECT COUNT(PLAYER_2)
+		FROM TENNIS_MATCH
+        WHERE MATCH_CODE = #{matchCode}
+	</select>
+	
+	<!-- 복식 검증 -->
+	<select id="valifyPlayerByDoubles" resultType="int">
+		SELECT COUNT(PLAYER_4)
+		FROM TENNIS_MATCH
+		WHERE MATCH_CODE = #{matchCode}
+	</select>
+	
+	<!-- 3번 검증  -->
+	<select id="valifyPlayer3" resultType="int">
+		SELECT COUNT(PLAYER_3)
+		FROM TENNIS_MATCH
+		WHERE MATCH_CODE = #{matchCode}
+	</select>
+	
+	
+	<!-- 선수2번 등록  -->
+	<update id="regMatchMember2">
+		UPDATE TENNIS_MATCH
+		SET PLAYER_2 = #{player2}
+		WHERE MATCH_CODE = #{matchCode}
+	</update>
+	
+	<update id="regMatchMember3">
+		UPDATE TENNIS_MATCH
+		SET PLAYER_3 = #{player3}
+		WHERE MATCH_CODE = #{matchCode}
+	</update>
+	
+	<update id="regMatchMember4">
+		UPDATE TENNIS_MATCH
+		SET PLAYER_4 = #{player4}
+		WHERE MATCH_CODE = #{matchCode}
+	</update>
+	
+	<update id="setDeadLine">
+		UPDATE TENNIS_MATCH
+		SET IS_DEADLINE = 'Y'
+	</update>
+	
+	<!-- 단식 매칭 결과 리스트 조회  -->
+	<select id="getResultList" resultMap="adminMapper.result">
+		SELECT RESULT_CODE
+		    , RE.MATCH_CODE
+		    , WM1.MEMBER_NAME AS WINNER_ONE
+		    , LM1.MEMBER_NAME AS LOSER_ONE
+		    , WINNER_SCORE
+		    , LOSER_SCORE
+		    , FIRST_SET_SCORE_P1
+		    , FIRST_SET_SCORE_P2
+		    , SECOND_SET_SCORE_P1
+		    , SECOND_SET_SCORE_P2
+		    , THIRD_SET_SCORE_P1
+		    , THIRD_SET_SCORE_P2
+		    , FOURTH_SET_SCORE_P1
+		    , FOURTH_SET_SCORE_P2
+		    , FIFTH_SET_SCORE_P1
+		    , FIFTH_SET_SCORE_P2
+		    , MATCH_DATE
+		FROM MATCH_RESULT RE
+		JOIN TENNIS_MATCH MAT ON RE.MATCH_CODE = MAT.MATCH_CODE
+		JOIN TENNIS_MEMBER WM1 ON RE.WINNER_ONE = WM1.MEMBER_ID
+		JOIN TENNIS_MEMBER LM1 ON RE.LOSER_ONE = LM1.MEMBER_ID
+		WHERE MAT.MATCH_TYPE = 'TYPE_001'
+		ORDER BY MATCH_DATE DESC
+	</select>
+	
+	<!-- 복식 매칭 결과 리스트 조회  -->
+	<select id="getResultByDoubleList" resultMap="adminMapper.result">
+	SELECT RESULT_CODE
+	    , RE.MATCH_CODE
+	    , WM1.MEMBER_NAME AS WINNER_ONE
+	    , WM2.MEMBER_NAME AS WINNER_TWO
+	    , LM1.MEMBER_NAME AS LOSER_ONE
+	    , LM2.MEMBER_NAME AS LOSER_TWO
+	    , WINNER_SCORE
+	    , LOSER_SCORE
+	    , FIRST_SET_SCORE_P1
+	    , FIRST_SET_SCORE_P2
+	    , SECOND_SET_SCORE_P1
+	    , SECOND_SET_SCORE_P2
+	    , THIRD_SET_SCORE_P1
+	    , THIRD_SET_SCORE_P2
+	    , FOURTH_SET_SCORE_P1
+	    , FOURTH_SET_SCORE_P2
+	    , FIFTH_SET_SCORE_P1
+	    , FIFTH_SET_SCORE_P2
+	    , MATCH_DATE
+	FROM MATCH_RESULT RE
+	JOIN TENNIS_MATCH MAT ON RE.MATCH_CODE = MAT.MATCH_CODE
+	JOIN TENNIS_MEMBER WM1 ON RE.WINNER_ONE = WM1.MEMBER_ID
+	JOIN TENNIS_MEMBER WM2 ON RE.WINNER_TWO = WM2.MEMBER_ID
+	JOIN TENNIS_MEMBER LM1 ON RE.LOSER_ONE = LM1.MEMBER_ID
+	JOIN TENNIS_MEMBER LM2 ON RE.LOSER_TWO = LM2.MEMBER_ID
+	WHERE MAT.MATCH_TYPE = 'TYPE_002'
+	ORDER BY MATCH_DATE DESC
+	</select>
+	
+	<!-- 매칭 취소 -->
+	<delete id="deleteMatch">
+		DELETE TENNIS_MATCH
+		WHERE MATCH_CODE = #{matchCode}
+	</delete>
+	
+	
+	<!-- 참가 취소 검증  -->
+	<select id="valiCountPlayer" resultType="int">
+		SELECT COUNT(MATCH_CODE)
+		FROM TENNIS_MATCH
+		WHERE MATCH_CODE = #{matchCode}
+		AND (
+		  PLAYER_2 = #{memberVO.memberId}
+		  OR PLAYER_3 = #{memberVO.memberId}
+		  OR PLAYER_4 = #{memberVO.memberId}
+		)
+	</select>
+	
+	<!-- 참가 리스트 -->
+	<select id="getMatchPlayerList" resultMap="match">
+		SELECT PLAYER_2
+            , PLAYER_3
+            , PLAYER_4
+		FROM TENNIS_MATCH
+		WHERE MATCH_CODE = #{matchCode}
+	</select>
+	
+	<!-- 참가 취소 -->
+	<update id="cancelMatchByPlayer">
+		UPDATE TENNIS_MATCH
+		SET ${playerCode} = NULL
+			, IS_DEADLINE = 'N'
+		WHERE MATCH_CODE = #{matchCode}
+	</update>
+	
+	<!-- 자신의 티어 조회 -->
+	<select id="getMyTierCode" resultType="String">
+		SELECT TIER_CODE
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_ID = #{memberId}
+	</select>
+	
+	
+	<!-- 자신에게 맞는 조건 제외한 대상자 조회 -->
+	<select id="getMemberCodeList" resultType="int">
+		SELECT MEMBER_CODE
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_ID != #{memberId}
+		AND TIER_CODE IN
+		<foreach collection="tierList" item="tier" open="(" close=")" separator=",">
+			#{tier}
+		</foreach>
+		AND MEM_STATE = 'Y'
+	</select>
+	
+	<!-- 대상자 회원ID 가져오기 -->
+	<select id="getMemberIdByRandom" resultType="String">
+		SELECT MEMBER_ID
+		FROM TENNIS_MEMBER
+		WHERE MEMBER_CODE = #{memberCode}
+	</select>
+	
+	<!-- 랜덤하게 선택된 회원 검증 -->
+	<select id="valiPlayer2ByRandom" resultType="int">
+		SELECT COUNT(MATCH_CODE)
+		FROM TENNIS_MATCH
+		WHERE (PLAYER_1 = #{player2} OR PLAYER_2 = #{player2} 
+		OR PLAYER_3 = #{player2} OR PLAYER_4 = #{player2})
+		AND MATCH_DATE = #{matchDate}
+		AND START_TIME = #{startTime}
+		AND END_TIME = #{endTime}
+	</select>
+	
+	<!-- 랜덤 매칭 검증 -->
+	<select id="getCheckRandomMatch" resultType="int">
+		SELECT COUNT(MATCH_CODE)
+		FROM TENNIS_MATCH
+		WHERE (MATCH_WRITER = #{matchWriter} OR PLAYER_2 = #{matchWriter})
+		AND MATCH_DATE = #{matchDate}
+	</select>
+		
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
