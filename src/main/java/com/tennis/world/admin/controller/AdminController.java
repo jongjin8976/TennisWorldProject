@@ -132,7 +132,7 @@ public class AdminController {
 	//블랙리스트 처리는 완료 하였고 
 	//내정보 페이지에서 이력 확인 할 수 있게 할지? 고민 oo
 	//내정보 페이지에 이미지 넣게 만들지? 고민 완료
-	//공지사항 페이지 만들어야 함
+	//공지사항 페이지 만들어야 함///
 	@PostMapping("/cancelRegBlackListAjax")
 	@ResponseBody
 	public int cancelRegBlackListAjax(BlackListVO blackListVO) {
