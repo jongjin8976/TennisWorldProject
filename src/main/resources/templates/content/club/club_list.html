@@ -34,8 +34,8 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr>
-								<th:block th:each="club ,state :${clubList}">
+							<th:block th:each="club ,state :${clubList}">
+								<tr>
 									<td>[[${#lists.size(clubList) - state.index}]]</td>
 									<td>[[${club.clubName}]]</td>
 									<td>[[${club.memberVO.memberName}]]</td>
@@ -52,8 +52,8 @@
 											<input type="button" value="Manage" class="btn btn-primary" th:onclick="clubManage([[${club.clubLeader}]],[[${#authentication.name}]],[[${club.clubCode}]])">
 										</div>
 									</td>
-								</th:block>
-							</tr>
+								</tr>
+							</th:block>
 						</tbody>
 					</table>
 				</div>
@@ -162,6 +162,11 @@
         			
         			</tbody>
         		</table>
+        	</div>
+        </div><!-- 클럽삭제 만들어야함!!!!! -->
+        <div class="row">
+        	<div class="col text-end">
+        		<input type="button" value="클럽 삭제" class="btn btn-primary" onclick="deleteClub();">
         	</div>
         </div>
       </div>

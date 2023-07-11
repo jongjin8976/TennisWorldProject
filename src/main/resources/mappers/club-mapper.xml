@@ -123,6 +123,20 @@
 		SET CLUB_HEAD_COUNT = CLUB_HEAD_COUNT -1
 		WHERE CLUB_CODE = #{clubCode}
 	</update>
+	
+	<!-- 클럽 회원 정보 빈값 처리 -->
+	<update id="setDeleteClubMember">
+		UPDATE TENNIS_MEMBER
+		SET CLUB_CODE = NULL
+		WHERE CLUB_CODE = #{clubCode}
+	</update>
+	<!-- 클럽 삭제  -->
+	<delete id="deleteClub">
+		DELETE TENNIS_CLUB
+		WHERE CLUB_CODE = #{clubCode}
+	</delete>
+	
+	
 </mapper>
 
 

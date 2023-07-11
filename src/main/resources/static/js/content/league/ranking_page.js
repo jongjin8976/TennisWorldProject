@@ -6,7 +6,7 @@ function selectTierCodeByRank(rank) {
 	$.ajax({
 		url: '/league/selectTierCodeByRankAjax', //요청경로
 		type: 'post',
-		async: true,
+		async:false,
 		//contentType : 'application/json; charset=UTF-8',
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: { 'tierCode': rank.value }, //필요한 데이터

@@ -327,7 +327,7 @@ function createClub(role){
 	}	
 }
 
-//클럽 가입 페이지 이동
+//클럽 목록 페이지 이동
 function regcClub(role){
 	if(role == 'anonymousUser'){
 		swal.fire({

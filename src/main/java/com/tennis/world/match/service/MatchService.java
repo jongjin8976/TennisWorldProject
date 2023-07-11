@@ -102,5 +102,8 @@ public interface MatchService {
 	//랜덤하게 선택된 회원 검증
 	int valiPlayer2ByRandom(MatchVO matchVO);
 	
+	//플레이어 확인
+	MatchVO getPlayerList(String matchCode);
+	
 	
 }

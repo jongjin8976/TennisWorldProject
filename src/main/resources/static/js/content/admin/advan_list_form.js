@@ -13,8 +13,8 @@ function setRequest(req_code) {
 			$.ajax({
 				url: '/admin/setRequestAjax', //요청경로
 				type: 'post',
-				async: true,
-				contentType: 'application/json; charset=UTF-8',
+				async: false,
+				//contentType: 'application/json; charset=UTF-8',
 				contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 				data: { 'reqCode': req_code }, //필요한 데이터
 				success: function(result) {

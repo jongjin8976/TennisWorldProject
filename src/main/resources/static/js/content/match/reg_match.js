@@ -95,7 +95,7 @@ function checkTier(mem_tier) {
 	else if (comp_val > mem_tier_val + 2) {
 		swal.fire({
 			title: "경고",
-			text: "매칭 신청자의 티어보다 3 티어 이상 높습니다 상관 없으신가요?  일방적인 경기가 이루어 질 수도 있습니다",
+			html: "매칭 신청자의 티어보다 3 티어 이상 높습니다<br> 상관 없으신가요? 일방적인 경기가 <br>이루어 질 수도 있습니다",
 			icon: "question",
 			showCancelButton: true,
 			confirmButtonText: "확인",

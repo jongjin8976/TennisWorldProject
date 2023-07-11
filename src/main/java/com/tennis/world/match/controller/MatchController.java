@@ -92,11 +92,20 @@ public class MatchController {
 		if (matchVO.getPlayer2() != null) {
 			memIdList.add(1, matchVO.getPlayer2());
 		}
+		else if(matchVO.getPlayer2() == null) {
+			memIdList.add(1, "");
+		}
 		if (matchVO.getPlayer3() != null) {
 			memIdList.add(2, matchVO.getPlayer3());
 		}
+		else if(matchVO.getPlayer3() == null) {
+			memIdList.add(2, "");
+		}
 		if (matchVO.getPlayer4() != null) {
 			memIdList.add(3, matchVO.getPlayer4());
+		}
+		if (matchVO.getPlayer4() == null) {
+			memIdList.add(3, "");
 		}
 
 		MemberVO memberVO = new MemberVO();
@@ -128,8 +137,6 @@ public class MatchController {
 		String memberTier = matchService.valifyTier(memberId);
 		String matchTier = matchService.valifyMatch(matchCode);
 		try {
-			System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@matchNum" + Integer.parseInt(matchTier.substring(7)));
-			System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@memNum" + Integer.parseInt(memberTier.substring(7)));
 			if (Integer.parseInt(matchTier.substring(7)) < Integer.parseInt(memberTier.substring(7))) {
 				valiResult = false;
 			}
@@ -190,6 +197,10 @@ public class MatchController {
 			matchVO.setPlayer4(authentication.getName());
 			matchService.regMatchMember4(matchVO);
 			playerNum = 4;
+		}
+		MatchVO playerList = matchService.getPlayerList(matchCode);
+		if(playerList.getPlayer2() != null || playerList.getPlayer3() != null || playerList.getPlayer4() != null) {
+			matchService.setDeadLine();
 		}
 
 		return playerNum;

@@ -31,7 +31,7 @@ function getRandomMatchMember(member_id) {
 						$.ajax({
 							url: '/match/regRandomMatchPlayerAjax', //요청경로
 							type: 'post',
-							async: true,
+							async: false,
 							contentType: 'application/json; charset=UTF-8',
 							contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 							data: { 'memberId': member_id }, //필요한 데이터

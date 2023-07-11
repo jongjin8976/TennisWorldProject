@@ -178,6 +178,11 @@ public class MatchServiceImpl implements MatchService{
 		return sqlsession.selectOne("matchMapper.valiPlayer2ByRandom",matchVO);
 	}
 
+	@Override
+	public MatchVO getPlayerList(String matchCode) {
+		return sqlsession.selectOne("matchMapper.getPlayerList",matchCode);
+	}
+
 
 	
 	

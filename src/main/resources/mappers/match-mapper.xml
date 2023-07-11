@@ -251,9 +251,10 @@
 	
 	<!-- 복식 검증 -->
 	<select id="valifyPlayerByDoubles" resultType="int">
-		SELECT COUNT(PLAYER_4)
+		SELECT COUNT(MATCH_CODE)
 		FROM TENNIS_MATCH
 		WHERE MATCH_CODE = #{matchCode}
+		AND IS_DEADLINE = 'Y'
 	</select>
 	
 	<!-- 3번 검증  -->
@@ -313,6 +314,17 @@
 		JOIN TENNIS_MEMBER LM1 ON RE.LOSER_ONE = LM1.MEMBER_ID
 		WHERE MAT.MATCH_TYPE = 'TYPE_001'
 		ORDER BY MATCH_DATE DESC
+	</select>
+	
+	<!-- 플레이어 확인 -->
+	<select id="getPlayerList" resultMap="match">
+		SELECT PLAYER_1
+			, PLAYER_2
+			, PLAYER_3
+			, PLAYER_4
+		FROM TENNIS_MATCH
+		WHERE MATCH_CODE = #{matchCode}
+		AND MATCH_TYPE = 'TYPE_002'
 	</select>
 	
 	<!-- 복식 매칭 결과 리스트 조회  -->
@@ -424,8 +436,13 @@
 	<select id="getCheckRandomMatch" resultType="int">
 		SELECT COUNT(MATCH_CODE)
 		FROM TENNIS_MATCH
-		WHERE (MATCH_WRITER = #{matchWriter} OR PLAYER_2 = #{matchWriter})
+		WHERE (MATCH_WRITER = #{matchWriter} 
+				OR PLAYER_2 = #{matchWriter}
+				OR PLAYER_3 = #{matchWriter}
+				OR PLAYER_4 = #{matchWriter})
 		AND MATCH_DATE = #{matchDate}
+		AND START_TIME = '19:00'
+		AND END_TIME = '20:00'
 	</select>
 		
 </mapper>

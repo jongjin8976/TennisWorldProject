@@ -77,8 +77,8 @@ public class ClubController {
 	@JsonIgnore
 	public Map<String, Object> getClubDetailAjax(String clubCode) {
 		Map<String, Object> clubMap = new HashMap<>();
-		clubMap.put("clubDetail", clubService.getClubList("CLUB_001"));
-		clubMap.put("clubMemList", clubService.getClubMemberList("CLUB_001"));
+		clubMap.put("clubDetail", clubService.getClubList(clubCode));
+		clubMap.put("clubMemList", clubService.getClubMemberList(clubCode));
 		
 		return clubMap;
 	}
@@ -116,6 +116,12 @@ public class ClubController {
 	@ResponseBody
 	public int clubSecessionAjax(MemberVO memberVO) {
 		return clubService.dropOutClubByMember(memberVO);
+	}
+	//클럽 삭제
+	@PostMapping("/deleteClubAjax")
+	@ResponseBody
+	public int deleteClubAjax(String clubCode) {	
+		return clubService.setDeleteClubMember(clubCode);
 	}
 	
 	

@@ -29,8 +29,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			throw new DisabledException("접근이 거부되었습니다 관리자에게 문의하세요");
 		}
 
-		UserDetails user = User.withUsername(member.getMemberId()).password(member.getMemberPw())
-				.roles(member.getIsAdmin()).build();
+		UserDetails user = User.withUsername(member.getMemberId())
+								.password(member.getMemberPw())
+								.roles(member.getIsAdmin()).build();
 
 		return user;
 	}

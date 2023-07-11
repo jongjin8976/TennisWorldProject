@@ -8,7 +8,8 @@ function checkClubDetail(club_code) {
 	const club_tier_inp = document.querySelector('#clubTier');
 	const club_intro_tex = document.querySelector('#clubIntro');
 	const club_tbody = document.querySelector('#clubTbody');
-
+	club_intro_tex.replaceChildren();
+	console.log(club_code);
 	club_tbody.replaceChildren();
 	let str = '';
 	//ajax start
@@ -141,7 +142,7 @@ function clubManage(leader_code, member_id, club_code) {
 		$.ajax({
 			url: '/club/clubMemberManageAjax', //요청경로
 			type: 'post',
-			async: true,
+			async: false,
 			contentType: 'application/json; charset=UTF-8',
 			contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 			data: { 'clubCode': club_code }, //필요한 데이터
@@ -152,6 +153,7 @@ function clubManage(leader_code, member_id, club_code) {
 				let str = '';
 				result.forEach(function(r, idx) {
 					str += '<tr>';
+					str += `<input type="hidden" value="${club_code}" id="clubCodeByModal">`;
 					str += `<td>${idx + 1}</td>`;
 					str += `<td>${r.memberName}</td>`;
 					str += `<td>${r.tierVO.tierName}</td>`;
@@ -198,8 +200,8 @@ function dropOutMember(member_id, club_code) {
 							title: "강퇴가 완료되었습니다.",
 							icon: 'success',
 							button: '확인',
-						}).then((r)=>{
-							location.href="/club/clubList";
+						}).then((r) => {
+							location.href = "/club/clubList";
 						});
 					}
 				},
@@ -221,9 +223,59 @@ function dropOutMember(member_id, club_code) {
 
 }
 
+//클럽 삭제
+function deleteClub() {
+	const club_code = document.querySelector('#clubCodeByModal').value;
+	swal.fire({
+		title: "클럽 삭제",
+		html: "클럽은 삭제하시겠습니까? <br> 삭제한 클럽은 복구가 불가능합니다 <br> 신중하게 선택해주세요.",
+		icon: "question",
+		showCancelButton: true,
+		confirmButtonText: "확인",
+		cancelButtonText: "취소"
+	}).then((r) => {
+		if (r.isConfirmed) {
+			deleteClubAjax(club_code);
+		}
+		else if (r.isDismissed) {
+			swal.fire({
+				title: "삭제가 취소되었습니다.",
+				icon: 'success',
+				button: '확인',
+			});
+		}
+	});
 
 
+}
+//클럽 삭제 Ajax
+function deleteClubAjax(club_code) {
+	//ajax start
+	$.ajax({
+		url: '/club/deleteClubAjax', //요청경로
+		type: 'post',
+		async: false,
+		//contentType: 'application/json; charset=UTF-8',
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		data: { 'clubCode': club_code }, //필요한 데이터
+		success: function(result) {
+			if (result == 1) {
+				swal.fire({
+					title: "삭제가 완료되었습니다.",
+					icon: 'success',
+					button: '확인',
+				}).then((r) => {
+					location.href = "/club/clubList";
+				});
+			}
+		},
+		error: function() {
+			alert('실패');
+		}
+	});
+	//ajax end
 
+}
 
 
 

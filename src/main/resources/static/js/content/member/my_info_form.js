@@ -4,7 +4,7 @@ function requestAdvan() {
 	$.ajax({
 		url: '/member/checkRequestAdAjax', //요청경로
 		type: 'post',
-		async: true,
+		async: false,
 		contentType: 'application/json; charset=UTF-8',
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		success: function(result) {
@@ -22,7 +22,7 @@ function requestAdvan() {
 						$.ajax({
 							url: '/member/requestAdvanceValiAjax', //요청경로
 							type: 'post',
-							async: true,
+							async: false,
 							contentType: 'application/json; charset=UTF-8',
 							contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 							success: function(result) {
@@ -31,7 +31,7 @@ function requestAdvan() {
 									$.ajax({
 										url: '/member/requestAdvanceAjax', //요청경로
 										type: 'post',
-										async: true,
+										async: false,
 										contentType: 'application/json; charset=UTF-8',
 										contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 										success: function(result) {

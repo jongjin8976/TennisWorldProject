@@ -11,7 +11,8 @@ function setBoard(btn, content, title, board_no) {
 	btn.value = '등록';
 	const cancel_btn = btn.nextElementSibling;
 	cancel_btn.value = '취소';
-	cancel_btn.setAttribute("onclick", `cancelSetBoard(this,'${content}','${title}','${board_no}');`);
+	cancel_btn.setAttribute("onclick", `cancelSetBoard(this
+	,'${content.replace(/\n/g, '\\n')}','${title}','${board_no}');`);
 }
 //수정 취소 
 function cancelSetBoard(btn, content, title, board_no) {
@@ -25,7 +26,8 @@ function cancelSetBoard(btn, content, title, board_no) {
 	btn.setAttribute("onclick", `delBoard('${board_no}')`);
 	set_btn = btn.previousElementSibling;
 	set_btn.value = '수정';
-	set_btn.setAttribute("onclick", `setBoard(this,'${content}','${title}','${board_no}');`);
+	set_btn.setAttribute("onclick", `setBoard(this
+	,'${content.replace(/\n/g, '\\n')}','${title}','${board_no}');`);
 }
 
 //게시판 글 수정
@@ -62,7 +64,7 @@ function updateBoard(board_no) {
 				$.ajax({
 					url: '/board/updateBoardAjax', //요청경로
 					type: 'post',
-					async: true,
+					async: false,
 					contentType: 'application/json; charset=UTF-8',
 					contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 					data: { 'boardNo': board_no, 'boardTitle': board_title.value, 'boardContent': board_content.value }, //필요한 데이터
@@ -222,8 +224,10 @@ function setReply(btn, reply, rep_idx, reply_no, board_no) {
 	const cancel_btn = btn.nextElementSibling;
 	btn.value = '등록';
 	cancel_btn.value = '취소';
-	btn.setAttribute("onclick", `updateReply('${reply_no}','${board_no}');`);
-	cancel_btn.setAttribute("onclick", `cancelReply(this,'${reply}','${rep_idx}','${reply_no}','${board_no}');`);
+	btn.setAttribute("onclick", `updateReply('${reply_no}'
+	,'${board_no}');`);
+	cancel_btn.setAttribute("onclick", `cancelReply(this
+	,'${reply}','${rep_idx}','${reply_no}','${board_no}');`);
 
 }
 //실제 수정
@@ -251,7 +255,7 @@ function updateReply(reply_no, board_no) {
 				$.ajax({
 					url: '/board/updateReplyAjax', //요청경로
 					type: 'post',
-					async: true,
+					async: false,
 					contentType: 'application/json; charset=UTF-8',
 					contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 					data: { 'replyNo': reply_no, 'replyContent': rep_content.value, 'boardNo': board_no }, //필요한 데이터

@@ -61,7 +61,7 @@ function createClub() {
 	$.ajax({
 		url: '/club/checkClubValiByMemberAjax', //요청경로
 		type: 'post',
-		async: true,
+		async: false,
 		contentType: 'application/json; charset=UTF-8',
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		success: function(result) {
@@ -77,6 +77,24 @@ function createClub() {
 						button: '확인',
 					});
 					return
+				}
+				else if(club_personnel > 30){
+					swal.fire({
+						title: "오류.",
+						html:"30명 이상은 등록 할 수 없습니다.",
+						icon: 'error',
+						button: '확인',
+					});
+					return	
+				}
+				else if(club_personnel < 10){
+					swal.fire({
+						title: "오류.",
+						html:"10명 이하는 등록 할 수 없습니다.",
+						icon: 'error',
+						button: '확인',
+					});
+					return	
 				}
 				else if (club_intro == '') {
 					swal.fire({

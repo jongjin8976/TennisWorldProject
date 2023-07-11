@@ -53,7 +53,6 @@ public class MemberController {
 	public String joinMember(MemberVO memberVO) {
 		String inputPassword = encoder.encode(memberVO.getMemberPw());
 		memberVO.setMemberPw(inputPassword);
-		System.out.println("회원 정보는 : " + memberVO);
 		memberService.regMember(memberVO);
 		return "redirect:/";
 	}

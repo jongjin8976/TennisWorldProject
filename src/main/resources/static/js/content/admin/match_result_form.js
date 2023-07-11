@@ -22,7 +22,7 @@ function getMonthByResult() {
 	$.ajax({
 		url: '/admin/getMonthByResultAjax', //요청경로
 		type: 'post',
-		async: true,
+		async: false,
 		contentType: 'application/json; charset=UTF-8',
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: { 'fromDate': from_date, 'toDate': to_date }, //필요한 데이터
@@ -31,6 +31,7 @@ function getMonthByResult() {
 			result.forEach(function(match_data) {
 				str += '<tr>';
 				str += `<td>${match_data.matchCode}</td>`;
+				str += `<td>${match_data.typeVO.typeName}</td>`;
 				str += `<td>${match_data.memberVO.memberName}</td>`;
 				str += `<td>${match_data.tierVO.tierName}</td>`;
 				str += `<td>${match_data.regDate}</td>`;
@@ -39,6 +40,7 @@ function getMonthByResult() {
 				str += `<input type="button" value="확인" onclick="regResultMatch('${match_data.matchCode}');" class="btn btn-primary">`;
 				str += `</div>`;
 				str += `</td>`;
+				str += '</tr>';
 			});
 
 			result_tbody.insertAdjacentHTML('afterbegin', str);
@@ -150,10 +152,11 @@ function regMatchResult() {
 	const win_p2 = document.querySelector('#winP2').value;
 	const loser_p1 = document.querySelector('#loseP1').value;
 	const loser_p2 = document.querySelector('#loseP2').value;
+	
 
 	if (win_p1 == loser_p1) {
 		swal.fire({
-			title: "같은 인원으로 등록 할 수 없습니다..",
+			html: "같은 인원으로 등록 할 수 없습니다..",
 			icon: 'error',
 			button: '확인',
 		});
@@ -161,7 +164,7 @@ function regMatchResult() {
 	}
 	else if (win_p1 == win_p2) {
 		swal.fire({
-			title: "같은 인원으로 등록 할 수 없습니다..",
+			html: "같은 인원으로 등록 할 수 없습니다..",
 			icon: 'error',
 			button: '확인',
 		});
@@ -169,7 +172,7 @@ function regMatchResult() {
 	}
 	else if (win_p1 == loser_p2) {
 		swal.fire({
-			title: "같은 인원으로 등록 할 수 없습니다..",
+			html: "같은 인원으로 등록 할 수 없습니다..",
 			icon: 'error',
 			button: '확인',
 		});
@@ -177,7 +180,7 @@ function regMatchResult() {
 	}
 	else if (win_p2 == loser_p1) {
 		swal.fire({
-			title: "같은 인원으로 등록 할 수 없습니다..",
+			html: "같은 인원으로 등록 할 수 없습니다..",
 			icon: 'error',
 			button: '확인',
 		});
@@ -185,7 +188,7 @@ function regMatchResult() {
 	}
 	else if (loser_p1 == loser_p2) {
 		swal.fire({
-			title: "같은 인원으로 등록 할 수 없습니다..",
+			html: "같은 인원으로 등록 할 수 없습니다..",
 			icon: 'error',
 			button: '확인',
 		});
@@ -193,9 +196,25 @@ function regMatchResult() {
 	}
 	else {
 		for (let i = 0; i < team1_td.length - 2; i++) {
-			if (team1_td[i].value == '') {
+			if (team1_td[i].value == 0) {
 				swal.fire({
-					title: "1~3세트는 빈값을 입력 할 수 없습니다.",
+					html: "1~3세트 승리 플레이어 점수는 <br> 빈값을 입력 할 수 없습니다.",
+					icon: 'error',
+					button: '확인',
+				});
+				return
+			}
+			else if (team1_td[i].value > 7) {
+				swal.fire({
+					html: "세트 스코어는 7점 이상 불가합니다.",
+					icon: 'error',
+					button: '확인',
+				});
+				return
+			}
+			else if (Math.sign(team1_td[i].value) == -1) {
+				swal.fire({
+					html: "음수는 입력 할 수 없습니다.",
 					icon: 'error',
 					button: '확인',
 				});
@@ -204,9 +223,17 @@ function regMatchResult() {
 		}
 
 		for (let i = 0; i < team2_td.length - 2; i++) {
-			if (team2_td[i].value == '') {
+			if (team2_td[i].value >= 7) {
 				swal.fire({
-					title: "1~3세트는 빈값을 입력 할 수 없습니다.",
+					html: "세트 스코어는 7점 이상 불가합니다.",
+					icon: 'error',
+					button: '확인',
+				});
+				return
+			}
+			else if (Math.sign(team2_td[i].value) == -1) {
+				swal.fire({
+					html: "음수는 입력 할 수 없습니다.",
 					icon: 'error',
 					button: '확인',
 				});

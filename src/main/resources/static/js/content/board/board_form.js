@@ -13,7 +13,7 @@ function regBoard(role) {
 
 	if (board_title == '') {
 		swal.fire({
-			title: "제목은 빈값을 넣을 수 없습니다.",
+			html: "제목은 빈값을 넣을 수 없습니다.",
 			icon: 'error',
 			button: '확인',
 		});
@@ -22,7 +22,7 @@ function regBoard(role) {
 
 	if (board_content == '') {
 		swal.fire({
-			title: "내용에 빈값을 넣을 수 없습니다.",
+			html: "내용에 빈값을 넣을 수 없습니다.",
 			icon: 'error',
 			button: '확인',
 		});
@@ -33,7 +33,7 @@ function regBoard(role) {
 	console.log(byte_data);
 	if (byte_data >= 1000) {
 		swal.fire({
-			title: "1000바이트 이상은 입력불가합니다.",
+			html: "1000바이트 이상은 입력불가합니다.",
 			icon: 'error',
 			button: '확인',
 		});
@@ -54,7 +54,7 @@ function regBoard(role) {
 				$.ajax({
 					url: '/board/regBoardAjax', //요청경로
 					type: 'post',
-					async: true,
+					async: false,
 					contentType: 'application/json; charset=UTF-8',
 					contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 					data: { 'boardTitle': board_title, 'boardContent': board_content }, //필요한 데이터
@@ -90,13 +90,13 @@ function regBoard(role) {
 
 }
 
-//게시글 상세보기
+//게시글 상세보기 조회수 업데이트
 function boardDetail(board_no) {
 	//ajax start
 	$.ajax({
 		url: '/board/setReadCntAjax', //요청경로
 		type: 'post',
-		async: true,
+		async: false,
 		//contentType : 'application/json; charset=UTF-8',
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		data: { 'boardNo': board_no }, //필요한 데이터

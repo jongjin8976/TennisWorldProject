@@ -53,7 +53,7 @@ public class ClubServiceImpl implements ClubService{
 		sqlsession.update("clubMapper.joinClub",memberVO);
 		return sqlsession.update("clubMapper.setClubHeadCount",memberVO.getClubCode());
 	}
-	//클럽 회원 삭제
+	//클럽 회원 탈퇴
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public int dropOutClubByMember(MemberVO memberVO) {
@@ -64,6 +64,13 @@ public class ClubServiceImpl implements ClubService{
 	@Override
 	public int checkCountClubCode(String memberId) {
 		return sqlsession.selectOne("clubMapper.checkCountClubCode",memberId);
+	}
+	//클럽 회원 빈값 처리 및 클럽 삭제
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int setDeleteClubMember(String clubCode) {
+		sqlsession.update("clubMapper.setDeleteClubMember",clubCode);
+		return sqlsession.delete("clubMapper.deleteClub",clubCode);
 	}
 
 	

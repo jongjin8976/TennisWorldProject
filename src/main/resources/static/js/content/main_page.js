@@ -92,7 +92,7 @@ function joinMatch(member_id) {
 	console.log(player2);
 	console.log(match_rule);
 
-	//////조건식 한번 더봐야함! 진짜로~~~
+
 	if (member_id == player1) {
 		swal.fire({
 			title: "경고",
@@ -138,7 +138,7 @@ function joinMatch(member_id) {
 		})
 		return
 	}
-	
+
 
 	if (match_rule == 'TYPE_001') {
 		//단식 검증
@@ -158,7 +158,7 @@ function joinMatch(member_id) {
 						url: '/match/valifyJoinAjax', //요청경로
 						type: 'post',
 						async: false,
-						contentType: 'application/json; charset=UTF-8',
+						//contentType: 'application/json; charset=UTF-8',
 						contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 						data: { 'matchCode': match_code_input }, //필요한 데이터
 						success: function(result) {
@@ -244,66 +244,111 @@ function joinMatch(member_id) {
 	else if (match_rule == 'TYPE_002') {
 		//ajax start
 		$.ajax({
-			url: '/match/valifyPlayerByDoublesAjax', //요청경로
+			url: '/match/valifyJoinAjax', //요청경로
 			type: 'post',
 			async: false,
-			//contentType : 'application/json; charset=UTF-8',
+			contentType: 'application/json; charset=UTF-8',
 			contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 			data: { 'matchCode': match_code_input }, //필요한 데이터
 			success: function(result) {
-				//복식선수 등록
-				if (result == 0) {
-					//ajax start
-					$.ajax({
-						url: '/match/regMatchMemberDoublesAjax', //요청경로
-						type: 'post',
-						async: true,
-						contentType: 'application/json; charset=UTF-8',
-						contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-						data: { 'matchCode': match_code_input }, //필요한 데이터
-						success: function(result) {
-							if (result == 2) {
-								swal.fire({
-									title: "2번 선수로 등록 되었습니다.",
-									icon: 'success',
-									button: '확인',
-								}).then((r) => {
-									location.href = '/';
-								});
-							}
-							else if (result == 3) {
-								swal.fire({
-									title: "3번 선수로 등록 되었습니다.",
-									icon: 'success',
-									button: '확인',
-								}).then((r) => {
-									location.href = '/';
-								});
-							}
-							else if (result == 4) {
-								swal.fire({
-									title: "4번 선수로 등록 되었습니다.",
-									icon: 'success',
-									button: '확인',
-								}).then((r) => {
-									location.href = '/';
-								});
-							}
-						},
-						error: function() {
-							alert('실패');
-						}
-					});
-					//ajax end
-
-				}
-				else {
+				if (result == false) {
 					swal.fire({
-						title: "신청이 마감되었습니다.",
+						title: "경고",
+						text: "티어가 높아 참가가 불가능 합니다",
 						icon: 'error',
 						button: '확인',
 					})
 					return
+				}
+				else {
+					swal.fire({
+						title: "복식 경기를 신청하시겠습니까?",
+						icon: "question",
+						showCancelButton: true,
+						confirmButtonText: "확인",
+						cancelButtonText: "취소"
+					}).then((r) => {
+						if (r.isConfirmed) {
+							//ajax start
+							$.ajax({
+								url: '/match/valifyPlayerByDoublesAjax', //요청경로
+								type: 'post',
+								async: false,
+								//contentType : 'application/json; charset=UTF-8',
+								contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+								data: { 'matchCode': match_code_input }, //필요한 데이터
+								success: function(result) {
+									//복식선수 등록
+									if (result == 0) {
+										//ajax start
+										$.ajax({
+											url: '/match/regMatchMemberDoublesAjax', //요청경로
+											type: 'post',
+											async: false,
+											contentType: 'application/json; charset=UTF-8',
+											contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+											data: { 'matchCode': match_code_input }, //필요한 데이터
+											success: function(result) {
+												if (result == 2) {
+													swal.fire({
+														title: "2번 선수로 등록 되었습니다.",
+														icon: 'success',
+														button: '확인',
+													}).then((r) => {
+														location.href = '/';
+													});
+												}
+												else if (result == 3) {
+													swal.fire({
+														title: "3번 선수로 등록 되었습니다.",
+														icon: 'success',
+														button: '확인',
+													}).then((r) => {
+														location.href = '/';
+													});
+												}
+												else if (result == 4) {
+													swal.fire({
+														title: "4번 선수로 등록 되었습니다.",
+														icon: 'success',
+														button: '확인',
+													}).then((r) => {
+														location.href = '/';
+													});
+												}
+											},
+											error: function() {
+												alert('실패');
+											}
+										});
+										//ajax end
+
+									}
+									else {
+										swal.fire({
+											title: "신청이 마감되었습니다.",
+											icon: 'error',
+											button: '확인',
+										})
+										return
+									}
+								},
+								error: function() {
+									alert('실패');
+								}
+							});
+							//ajax end
+
+						}
+						else if (r.isDismissed) {
+							swal.fire({
+								title: "승인이 취소되었습니다.",
+								icon: 'success',
+								button: '확인',
+							});
+							return
+						}
+					});
 				}
 			},
 			error: function() {
@@ -311,6 +356,7 @@ function joinMatch(member_id) {
 			}
 		});
 		//ajax end
+
 
 	}
 
@@ -332,7 +378,7 @@ function delMatch(match_code) {
 			$.ajax({
 				url: '/match/deleteMatchAjax', //요청경로
 				type: 'post',
-				async: true,
+				async: false,
 				//contentType : 'application/json; charset=UTF-8',
 				contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 				data: { 'matchCode': match_code }, //필요한 데이터
@@ -406,10 +452,10 @@ function cancelMatch(member_id) {
 							success: function(result) {
 								if (result == 1) {
 									swal.fire({
-										title: "승인이 취소되었습니다.",
+										title: "참가가 취소되었습니다.",
 										icon: 'success',
 										button: '확인',
-									}).then((r)=>{
+									}).then((r) => {
 										location.href = '/';
 									});
 								}
