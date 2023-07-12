@@ -26,4 +26,6 @@ public interface ClubService {
 	int dropOutClubByMember(MemberVO memberVO);
 	//클럽 삭제
 	int setDeleteClubMember(String clubCode);
+	//클럽장 여부 조회
+	int getCountClubLeader(String memberId);
 }

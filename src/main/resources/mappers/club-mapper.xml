@@ -136,6 +136,12 @@
 		WHERE CLUB_CODE = #{clubCode}
 	</delete>
 	
+	<select id="getCountClubLeader" resultType="int">
+		SELECT COUNT(CLUB_CODE)
+		FROM TENNIS_CLUB
+		WHERE CLUB_LEADER = #{memberId}
+	</select>
+	
 	
 </mapper>
 

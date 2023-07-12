@@ -72,6 +72,11 @@ public class ClubServiceImpl implements ClubService{
 		sqlsession.update("clubMapper.setDeleteClubMember",clubCode);
 		return sqlsession.delete("clubMapper.deleteClub",clubCode);
 	}
+	//클럽 리더 여부 조회
+	@Override
+	public int getCountClubLeader(String memberId) {
+		return sqlsession.selectOne("clubMapper.getCountClubLeader",memberId);
+	}
 
 	
 	

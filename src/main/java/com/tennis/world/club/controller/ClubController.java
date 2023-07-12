@@ -115,7 +115,13 @@ public class ClubController {
 	@PostMapping("/clubSecessionAjax")
 	@ResponseBody
 	public int clubSecessionAjax(MemberVO memberVO) {
-		return clubService.dropOutClubByMember(memberVO);
+		int leaderResult = clubService.getCountClubLeader(memberVO.getMemberId());
+		if(leaderResult == 1) {
+			return 0;
+		}
+		else {
+			return clubService.dropOutClubByMember(memberVO);
+		}
 	}
 	//클럽 삭제
 	@PostMapping("/deleteClubAjax")

@@ -114,14 +114,14 @@ function clubSecession(club_code, member_id) {
 			$.ajax({
 				url: '/club/clubSecessionAjax', //요청경로
 				type: 'post',
-				async: true,
-				contentType: 'application/json; charset=UTF-8',
+				async: false,
+				//contentType: 'application/json; charset=UTF-8',
 				contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 				data: { 'clubCode': club_code, 'memberId': member_id }, //필요한 데이터
 				success: function(result) {
 					if (result == 1) {
 						swal.fire({
-							title: "탈퇴가 완료 되었습니다.",
+							html: "탈퇴가 완료 되었습니다.",
 							icon: 'success',
 							button: '확인',
 						}).then((r) => {
@@ -130,7 +130,7 @@ function clubSecession(club_code, member_id) {
 					}
 					else {
 						swal.fire({
-							title: "오류가 발생했습니다.",
+							html: "클럽장은 탈퇴가 불가능합니다.",
 							icon: 'error',
 							button: '확인',
 						});
